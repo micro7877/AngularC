@@ -3,29 +3,20 @@ import { APP_INITIALIZER, ApplicationConfig, inject } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
-import { provideStore } from '@ngrx/store';
-import { NotificationService } from './data-access/notification.service';
+import { provideState, provideStore } from '@ngrx/store';
+import * as appEffects from './app.effects';
 import { ROUTES } from './routes';
 import { StudentEffects } from './student/store/student.effects';
-import {
-  studentReducer,
-  studentsFeatureKey,
-} from './student/store/student.reducer';
+import { studentFeature } from './student/store/student.reducer';
 import { TeacherEffects } from './teacher/store/teacher.effects';
-import {
-  teacherReducer,
-  teachersFeatureKey,
-} from './teacher/store/teacher.reducer';
-
-const REDUCERS = {
-  [teachersFeatureKey]: teacherReducer,
-  [studentsFeatureKey]: studentReducer,
-};
+import { teacherFeature } from './teacher/store/teacher.reducer';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideStore(REDUCERS),
-    provideEffects([TeacherEffects, StudentEffects]),
+    provideStore(),
+    provideState(studentFeature),
+    provideState(teacherFeature),
+    provideEffects([appEffects, TeacherEffects, StudentEffects]),
     provideRouter(ROUTES),
     {
       provide: APP_INITIALIZER,
@@ -33,14 +24,6 @@ export const appConfig: ApplicationConfig = {
       useFactory: () => {
         const service = inject(FakeBackendService);
         return () => service.start();
-      },
-    },
-    {
-      provide: APP_INITIALIZER,
-      multi: true,
-      useFactory: () => {
-        const service = inject(NotificationService);
-        return () => service.init();
       },
     },
     provideAnimations(),

@@ -1,5 +1,9 @@
 // import React from 'react';
 
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { Post } from './post.component';
+
 export default function ReactPost(props: {
   title?: string;
   description?: string;
@@ -11,6 +15,8 @@ export default function ReactPost(props: {
     <div className={props.selected ? 'bg-blue-100' : 'bg-white'}>
       <div className="max-w-sm overflow-hidden rounded shadow-lg">
         <img
+          width={200}
+          height={50}
           className="h-32 w-full object-cover"
           src={props.pictureLink}
           alt={props.title}></img>
@@ -25,5 +31,27 @@ export default function ReactPost(props: {
         </div>
       </div>
     </div>
+  );
+}
+
+export function initReactPostComponent(
+  post: Post | undefined,
+  onPostSelectedCallback: () => void,
+) {
+  if (!post) {
+    return;
+  }
+
+  createRoot(
+    document.getElementById(`app-post-${post.id}`) as HTMLElement,
+  ).render(
+    <React.StrictMode>
+      <ReactPost
+        title={post.title}
+        description={post.description}
+        pictureLink={post.pictureLink}
+        handleClick={onPostSelectedCallback}
+      />
+    </React.StrictMode>,
   );
 }

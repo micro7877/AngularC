@@ -1,36 +1,37 @@
-import { NgFor } from '@angular/common';
-import { Component } from '@angular/core';
-import { PersonUtils } from './person.utils';
+import { Component, signal } from '@angular/core';
+import { PersonUtilPipe } from './person-util.pipe';
 
 @Component({
   standalone: true,
-  imports: [NgFor],
+  imports: [PersonUtilPipe],
   selector: 'app-root',
   template: `
-    <div *ngFor="let activity of activities">
-      {{ activity.name }} :
-      <div
-        *ngFor="let person of persons; let index = index; let isFirst = first">
-        {{ showName(person.name, index) }}
-        {{ isAllowed(person.age, isFirst, activity.minimumAge) }}
+    @for (activity of activities(); track activity.name) {
+      <div>
+        {{ activity.name }} :
+        @for (person of persons(); track person.name) {
+          <div>
+            {{ 'showName' | personUtil: person.name : $index }}
+            {{
+              'isAllowed'
+                | personUtil: person.age : $first : activity.minimumAge
+            }}
+          </div>
+        }
       </div>
-    </div>
+    }
   `,
 })
 export class AppComponent {
-  persons = [
+  persons = signal([
     { name: 'Toto', age: 10 },
     { name: 'Jack', age: 15 },
     { name: 'John', age: 30 },
-  ];
+  ]);
 
-  activities = [
+  activities = signal([
     { name: 'biking', minimumAge: 12 },
     { name: 'hiking', minimumAge: 25 },
     { name: 'dancing', minimumAge: 1 },
-  ];
-
-  showName = PersonUtils.showName;
-
-  isAllowed = PersonUtils.isAllowed;
+  ]);
 }
